@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INFI NEWS</title>
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+  <link rel="shortcut icon" href="../public/favicon.jpg">
+  <script>
+    
+    function bodyload(){
+      fetch("https://newsapi.org/v2/everything?q=tesla&from=2023-03-27&sortBy=publishedAt&apiKey=6850c7450d0d493d8dfcd35501b57a65")
+      .then(function(response){
+        return response.json();                 
+      })
+      .then(function(news){
+        for(var item of news.articles){
+          var div = document.createElement("div");
+          div.className = "card p-2 m-2";
+          div.style.width = "200px";
+          div.innerHTML = `
+          <img src=${item.urlToImage} class="card-img-top" height="100">
+          <div class="card-header">
+            <h3>${item.title}</h3>
+            </div>
+            <div class="card-body">
+<dl>
+    <dt>Publishedat</dt>
+    <dd>${item.publishedAt}</dd>
+    <dt>Description</dt>
+    <dd>${item.description}</dd>
+    </dl>
+                </div>
+                <div>
+                    </div>
+            `;
+            document.getElementById("photosContainer").appendChild(div);
+    }
+  });
+}
+var currentPage = 1;
+var articlesPerPage = 6; 
+function bodyload() {
+  fetch("https://newsapi.org/v2/everything?q=tesla&from=2023-03-27&sortBy=publishedAt&apiKey=6850c7450d0d493d8dfcd35501b57a65")
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(news) {
+      displayArticles(news.articles, currentPage);
+    });
+}
+function displayArticles(articles, page) {
+  var startIndex = (page - 1) * articlesPerPage;
+  var endIndex = startIndex + articlesPerPage;
+  var photosContainer = document.getElementById("photosContainer");
+  photosContainer.innerHTML = ""; 
+
+  for (var i = startIndex; i < endIndex && i < articles.length; i++) {
+    var item = articles[i];
+    var div = document.createElement("div");
+    div.className = "card p-2 m-2";
+    div.style.width = "200px";
+    div.innerHTML = `
+      <img src=${item.urlToImage} class="card-img-top" height="100">
+      <div class="card-header">
+        <h6>${item.title}</h6>
+      </div>
+      <div class="card-body">
+        <dl>
+          <dt>Published At</dt>
+          <dd>${item.publishedAt}</dd>
+          <dt>Description</dt>
+          <dd>${item.description}</dd>
+          <dd><a href="${item.url}">Read Completely</a></dd>
+        </dl>
+      </div>
+    `;
+    photosContainer.appendChild(div);
+  }
+}
+function goToPage(page) {
+  currentPage = page;
+  bodyload();
+}
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll(".page-link").forEach(function(link) {
+    link.addEventListener("click", function(e) {
+      e.preventDefault();
+      if (link.textContent === "Previous") {
+        if (currentPage > 1) {
+          currentPage--;
+          goToPage(currentPage);
+        }
+      } else if (link.textContent === "Next") {
+        currentPage++;
+        goToPage(currentPage);
+      } else {
+        var page = parseInt(link.textContent);
+        if (!isNaN(page)) {
+          currentPage = page;
+          goToPage(currentPage);
+        }
+      }
+    });
+  });
+});
+
+function fetchAccordionContent(article, accordionItem) {
+  
+  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(article.title)}&apiKey=6850c7450d0d493d8dfcd35501b57a65`;
+  
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      
+      const content = data.articles[0].content;
+
+      
+      const accordionBody = document.createElement('div');
+      accordionBody.classList.add('accordion-body');
+      accordionBody.innerHTML = content;
+
+      
+      accordionItem.appendChild(accordionBody);
+
+      
+      const accordion = new bootstrap.Collapse(accordionItem);
+      accordion.show();
+    })
+    .catch(error => {
+      console.log('An error occurred while fetching the data:', error);
+    });
+}
+
+
+  
+function searchArticles(event) {
+  event.preventDefault(); 
+  const keyword = document.querySelector('input[type="search"]').value; 
+
+  
+  const apiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(keyword)}&from=2023-03-27&sortBy=publishedAt&apiKey=6850c7450d0d493d8dfcd35501b57a65`;
+
+  
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      
+      console.log(data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+
+
+const form = document.querySelector('form');
+form.addEventListener('submit', searchArticles);
+
+  </script>
+  
+</head>
+<header>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">INFINEWS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          
+          
+        </ul>
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search By Keywords" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  
+</header>
+<body class="container-fluid" onload="bodyload()">
+  <div class="d-flex flex-wrap" id="photosContainer">
+  </div>
+  <nav aria-label="Page navigation example">
+    <ul class="pagination">
+      <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+      <li class="page-item"><a class="page-link" href="#">1</a></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
+  </nav>
+</body>
+<footer>
+</footer>
+</html>
